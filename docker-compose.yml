@@ -1,0 +1,23 @@
+﻿services:
+  worker:
+    build: src/TornLogDownloader
+    environment:
+      ConnectionStrings__MainDb: Server=db; Database=TornLogDownloader; User Id=sa; Password=yourStrong(!)Password; App=TornLogDownloader; Trust Server Certificate=True;
+      TornApiKey: rR5KfS9OfcXV8bdu
+    depends_on:
+      - db
+
+  db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    ports:
+      - 1433
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: yourStrong(!)Password
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P yourStrong(!)Password -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
